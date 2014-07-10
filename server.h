@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <utility>
 #include <boost/asio.hpp>
+#include "session_pool.h"
 
 using namespace std;
 using boost::asio::ip::tcp;
@@ -28,5 +29,9 @@ private:
 
     tcp::acceptor acceptor_;
     tcp::socket socket_;
+    session_pool sessions_;
+    
+    //t_service_imp  rpc_service_;
+    
 };
 

@@ -18,6 +18,7 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
+#include <memory>
 #include <boost/asio.hpp>
 using namespace std;
 using boost::asio::ip::tcp;
@@ -96,14 +97,16 @@ inline custom_alloc_handler<Handler> make_custom_alloc_handler(
         handler_allocator& a, Handler h) {
     return custom_alloc_handler<Handler>(a, h);
 }
-
+class session_pool;
 class session
 : public enable_shared_from_this<session> {
 public:
 
-    session(tcp::socket socket);
+    session(tcp::socket socket,session_pool& pool);
+    ~session();
 
     void start() ;
+    void stop();
 
 private:
 
@@ -119,7 +122,10 @@ private:
 
     // The allocator to use for handler-based custom memory allocation.
     handler_allocator allocator_;
+    
+    session_pool& _pool;
 };
 
+typedef shared_ptr<session> session_ptr;
 #endif	/* SESSION_H */
 

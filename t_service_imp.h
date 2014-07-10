@@ -9,6 +9,8 @@
 #define	T_SERVICE_IMP_H
 
 #include "t.pb.h"
+#include <memory>
+
 
 class t_service_imp:public t::t_service
 {
@@ -23,6 +25,6 @@ public:
 private:
 
 };
-
+typedef std::shared_ptr<t_service_imp> t_service_imp_ptr;
 #endif	/* T_SERVICE_IMP_H */
 

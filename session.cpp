@@ -9,15 +9,26 @@
 #include <google/protobuf/message.h>
 
 #include "session.h"
+#include "session_pool.h"
 #include "t.pb.h"
 #include "t_service_imp.h"
-session::session (tcp::socket socket)
-: socket_ (move (socket)) { }
+session::session (tcp::socket socket,session_pool& pool)
+: socket_ (move (socket)),_pool(pool) { }
+
+session::~session ()
+{
+	stop();
+}
 
 void
 session::start ()
 {
     do_read ();
+}
+
+void session::stop()
+{
+	socket_.close();
 }
 
 void
@@ -35,16 +46,28 @@ session::do_read ()
                                                                 const google::protobuf::MethodDescriptor* method = service->GetDescriptor ()->FindMethodByName("heartbeat");
                                                                 google::protobuf::Message* request  = service->GetRequestPrototype (method).New ();
                                                                 google::protobuf::Message* response = service->GetResponsePrototype(method).New();
-                                                                request->ByteSize ()
-                                                                bool ret=request->ParseFromArray(self->data_.begin(),length);
+                                                                cout<<"length:"<<length<<" data:";
+																for(auto i=0;i<length;++i)
+																{
+																	char c = *(self->data_.data()+i);
+																	cout<<std::hex<<(unsigned)c<<' ';
+																}
+																cout<<endl;
+                                                                bool ret=request->ParseFromArray(self->data_.data(),length);
                                                                 if(!ret)
                                                                 {
-                                                                    cout<<"parse error:"<<string(self->data_.begin(),length)<<endl;
+                                                                    cout<<"parse error:"<<string(self->data_.data(),length)<<endl;
                                                                 }
                                                                 else
                                                                 {   
                                                                     service->CallMethod(method, NULL ,request, response, NULL);
                                                                 }
+																delete service;
+																delete method;
+																delete request;
+																cout<<"ByteSize:"<<response->ByteSize ()<<endl;
+																response->SerializeToArray (self->data_.data(),1024);
+																delete response;
                                                                 do_write (length);
                                                             }
                                                         }));
