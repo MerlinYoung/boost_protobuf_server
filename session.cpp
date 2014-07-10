@@ -35,6 +35,7 @@ session::do_read ()
                                                                 const google::protobuf::MethodDescriptor* method = service->GetDescriptor ()->FindMethodByName("heartbeat");
                                                                 google::protobuf::Message* request  = service->GetRequestPrototype (method).New ();
                                                                 google::protobuf::Message* response = service->GetResponsePrototype(method).New();
+                                                                request->ByteSize ()
                                                                 bool ret=request->ParseFromArray(self->data_.begin(),length);
                                                                 if(!ret)
                                                                 {
