@@ -9,6 +9,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include "server.h"
+#include "t.pb.h"
 
 using namespace std;
 
@@ -21,10 +22,15 @@ int main(int argc, char* argv[])
 			cerr << "Usage: server <port>"<<endl;
 			return 1;
 		}
-
+#if 0
 		boost::asio::io_service io_service;
 		server s(io_service, atoi(argv[1]));
 		io_service.run();
+#else
+		ServerRpcConnectionFactory rpcConnectionFactory = SocketRpcConnectionFactories
+
+			
+#endif
 	}
 	catch (exception& e)
 	{

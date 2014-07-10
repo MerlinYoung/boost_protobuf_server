@@ -1,0 +1,20 @@
+package t;
+
+
+option java_package = "com.t";
+option java_outer_classname = "t_";
+option cc_generic_services = true;
+
+message common{
+	required uint32	user=1 [default=0];
+	required string device=2 [default=""];
+	//required string token=3 [default=""];
+};
+message ret{
+	required int32 stat=1 [default=0];
+};
+
+service t_service
+{
+	rpc heartbeat (common) returns (ret);
+}
