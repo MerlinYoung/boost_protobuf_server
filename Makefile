@@ -59,7 +59,7 @@ CXXFLAGS= -g -O2 -std=c++11
 # The options used in linking as well as in any direct use of ld.  
 LDFLAGS   =  
 
-LIBS = -lboost_system
+LIBS = -lboost_system -lprotobuf
 # The directories in which source files reside.  
 # If not specified, only the current directory will be serached.  
 SRCDIRS   =  
@@ -100,6 +100,12 @@ endif
 ifeq ($(SRCDIRS),)  
   SRCDIRS = .  
 endif  
+PROTOS = $(wildcard *.proto)
+PROTOHS = $(patsubst %.proto,%.pb.h, $(PROTOS))
+PROTOCS = $(patsubst %.proto,%.pb.cc, $(PROTOS))
+#JCE_SRC     := $(wildcard *.jce)
+#JCE_H       := $(patsubst %.jce,%.h, $(JCE_SRC))
+#JCE_CPP     := $(patsubst %.jce,%.cpp, $(JCE_INTER))
 SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))  
 HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))  
 SRC_CXX = $(filter-out %.c,$(SOURCES))  
@@ -122,8 +128,14 @@ LINK.cxx	= $(CXX) $(LDFLAGS)
 # Delete the default suffixes  
 .SUFFIXES:  
   
-all: $(PROGRAM)  
-  
+all: $(PROTOHS) $(PROTOCS) $(PROGRAM)  
+
+# Rules for creating protobuf
+# -----------------------------------------
+$(PROTOHS):$(PROTOS)
+	@echo parse $@ ...
+	protoc --cpp_out=./ $<
+
 # Rules for creating dependency files (.d).  
 #------------------------------------------  
   
@@ -214,17 +226,12 @@ else							# C++ program
 	@echo Type ./$@ to execute the program.  
 endif  
   
-ifndef NODEP  
-ifneq ($(DEPS),)  
-  sinclude $(DEPS)  
-endif  
-endif  
   
 clean:  
 	$(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe  
   
 distclean: clean  
-	$(RM) $(DEPS) TAGS  
+	$(RM) $(DEPS) $(PROTOHS) $(PROTOCS)  
   
 # Show help.  
 help:  
@@ -249,6 +256,9 @@ help:
 show:  
 	@echo 'PROGRAM	 :' $(PROGRAM)  
 	@echo 'SRCDIRS	 :' $(SRCDIRS)  
+	@echo 'PROTOS	 :' $(PROTOS)  
+	@echo 'PROTOHS	 :' $(PROTOHS)  
+	@echo 'PROTOCS	 :' $(PROTOCS)  
 	@echo 'HEADERS	 :' $(HEADERS)  
 	@echo 'SOURCES	 :' $(SOURCES)  
 	@echo 'SRC_CXX	 :' $(SRC_CXX)  
@@ -260,5 +270,10 @@ show:
 	@echo 'link.c	  :' $(LINK.c)  
 	@echo 'link.cxx	:' $(LINK.cxx)  
   
+ifndef NODEP  
+ifneq ($(DEPS),)  
+  -include $(DEPS)  
+endif  
+endif  
 ## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##  
 ##############################################################  

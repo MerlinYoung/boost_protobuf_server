@@ -1,5 +1,5 @@
 package t;
-
+         
 
 option java_package = "com.t";
 option java_outer_classname = "t_";
